@@ -1,0 +1,259 @@
+﻿@model TicketManagement.BLL.User
+
+@{ ViewData["Title"] = "Dashboard"; }
+
+@section styles{
+    <link href="~/Content/custom.min.css" rel="stylesheet">
+    <link href="~/Content/toastr.min.css" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="~/lib/iCheck/skins/flat/green.css" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="~/lib/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="~/lib/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <!-- bootstrap-daterangepicker -->
+    <link href="~/lib/bootstrap-daterangepicker/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+}
+
+@section scripts{
+    <!-- Chart.js -->
+    <script src="~/lib/Chart.js/dist/Chart.min.js"></script>
+    <!-- gauge.js -->
+    <script src="~/lib/gauge.js/dist/gauge.min.js"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="~/lib/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    <!-- iCheck -->
+    <script src="~/lib/iCheck/icheck.min.js"></script>
+    <!-- Skycons -->
+    <script src="~/lib/skycons/skycons.js"></script>
+    <!-- Flot -->
+    <script src="~/lib/Flot/jquery.flot.js"></script>
+    <script src="~/lib/Flot/jquery.flot.pie.js"></script>
+    <script src="~/lib/Flot/jquery.flot.time.js"></script>
+    <script src="~/lib/Flot/jquery.flot.stack.js"></script>
+    <script src="~/lib/Flot/jquery.flot.resize.js"></script>
+    <!-- Flot plugins -->
+    <script src="~/lib/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="~/lib/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="~/lib/flot.curvedlines/curvedLines.js"></script>
+    <!-- DateJS -->
+    <script src="~/lib/DateJS/build/date.js"></script>
+    <!-- JQVMap -->
+    <script src="~/lib/jqvmap/dist/jquery.vmap.js"></script>
+    <script src="~/lib/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="~/lib/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+    <!-- bootstrap-daterangepicker -->
+    <script src="~/lib/moment/min/moment.min.js"></script>
+    <script src="~/lib/bootstrap-daterangepicker/src/js/bootstrap-datetimepicker.js"></script>
+
+    <!-- Step 1 - Include the fusioncharts core library -->
+    <script src="~/Scripts/fusioncharts.js"></script>
+    <!-- Step 2 - Include the fusion theme -->
+    <script src="~/Scripts/themes/fusioncharts.theme.fusion.js"></script>
+
+    <script src="~/Scripts/custom.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+
+    <script>
+        $(function () {
+            var message = '@TempData["Message"]';
+            if (message != null && message != '') {
+                var title = '@ViewBag.Title';
+                var success = '@TempData["Success"]';
+                if (success == "1") {
+                    toastr.success(message, title);
+                }
+                else {
+                    toastr.error(message, title);
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var form = $('select[name="s"]').parent().parent();
+            $(form).css("display", "none");
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+        // Chart 1
+        var chartData1;
+        var data1 = {};
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetRequestsGroupedByStatus")",
+            async: false,
+            data: data1,
+            dataType: "json",
+            success: function (response) {
+                if (response.error == 0) {
+                    chartData1 = response.output;
+                }
+                else {
+                    toastr.error(response.message, "");
+                }
+            },
+            failure: function (response) {
+                toastr.error(response, "");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                toastr.error(XMLHttpRequest.responseText, "");
+            }
+        });
+        const chartConfig1 = {
+            type: 'column2d',
+            renderAt: 'chart-1',
+            width: '100%',
+            height: '400',
+            dataFormat: 'json',
+            dataSource: {
+                "chart": {
+                    "caption": "Requests by Status",
+                    "subCaption": "All requests",
+                    "xAxisName": "Status",
+                    "yAxisName": "Total (count)",
+                    "numberSuffix": "",
+                    "theme": "fusion",
+                },
+                "data": chartData1
+            }
+        };
+
+        // Chart 2
+        var chartData2;
+        var data2 = {};
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetRequestsGroupedByManagerAndStatus")",
+            async: false,
+            data: data2,
+            dataType: "json",
+            success: function (response) {
+                if (response.error == 0) {
+                    chartData2 = response.output;
+                    debugger;
+                }
+                else {
+                    toastr.error(response.message, "");
+                }
+            },
+            failure: function (response) {
+                toastr.error(response, "");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                toastr.error(XMLHttpRequest.responseText, "");
+            }
+        });
+
+        // Render
+        FusionCharts.ready(function () {
+
+            var fusioncharts1 = new FusionCharts(chartConfig1).render();
+
+            //var fusioncharts2 = new FusionCharts(chartConfig2).render();
+
+            var fusioncharts2 = new FusionCharts({
+                type: "msbar2d",
+                renderAt: "chart-2",
+                width: "100%",
+                height: "100%",
+                dataFormat: "json",
+                chartData2
+            }).render();
+        });
+
+    </script>
+
+}
+
+@section SideUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section TopUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section ViewName{
+    <h4 style="margin-top:20px !important">
+        <strong>Dashboard</strong>
+    </h4>
+}
+
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="row">
+
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="x_panel tile">
+                <div class="x_title">
+                    <h2>Requests by Status</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                @*<li>
+                                        <a href="#">Monthly Basis</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Quaterly Basis</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Daily Basis</a>
+                                    </li>*@
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="close-link"><i class="fa fa-close"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <h4><span id="spRequestsTitle"></span></h4>
+                    <div id="chart-1"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="x_panel tile">
+                <div class="x_title">
+                    <h2>Requests by Manager and Status</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                @*<li>
+                                        <a href="#">Monthly Basis</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Quaterly Basis</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Daily Basis</a>
+                                    </li>*@
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="close-link"><i class="fa fa-close"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <h4><span id="spRequestsTitle"></span></h4>
+                    <div id="chart-2"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

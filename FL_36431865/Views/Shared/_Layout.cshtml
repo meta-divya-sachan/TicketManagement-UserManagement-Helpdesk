@@ -1,0 +1,703 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>@ViewData["Title"] - TicketManagement</title>
+
+    <!-- Bootstrap -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="~/lib/nprogress/nprogress.css" rel="stylesheet">
+    <!-- Site -->
+    <link href="~/Content/loader.css" rel="stylesheet" />
+    <!-- Site -->
+    <link href="~/Content/site.css" rel="stylesheet" />
+
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet">
+
+    @RenderSection("styles", required: false)
+
+    <!-- jQuery -->
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <!-- jQuery-ui -->
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <!-- Site -->
+    <script src="~/Scripts/site.js"></script>
+
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+
+    <script src="~/lib/autosize/dist/autosize.min.js"></script>
+
+    @RenderSection("nscripts", required: false)
+
+    <script type="text/javascript">
+
+        $(window).load(function () {
+            $(".page-loader-variant-1").fadeOut(500);
+        });
+
+        var elem = document.documentElement;
+        function openFullscreen() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) { /* Firefox */
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function closeFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        $(window).load(function () {
+            $(".page-loader-variant-1").fadeOut(500);
+        });
+
+        function CloseSession() {
+            window.location.href = "~/Users/Logout";
+        };
+
+        function RedirectToMain() {
+            window.location.href = "../../Pages/IntranetWelcome.aspx";
+        };
+
+    </script>
+
+    <style>
+
+        .divider {
+            border: 0;
+            border-top: 1px solid #aaa !important;
+        }
+
+        .x-action-button {
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .form-control {
+            font-size: 13px;
+            padding: 6px;
+            height: 30px;
+        }
+
+        .btn-primary {
+            background-color: rgba(0, 155, 221);
+        }
+
+        .btn-link {
+            color: inherit;
+        }
+
+        .pad-side-12 {
+            margin: 0px 12px 0px 12px;
+        }
+
+        td span {
+            line-height: 20px;
+        }
+
+        .table-textbox {
+            height: 28px;
+            /*margin-top: -2px;
+            margin-bottom: -2px;*/
+            padding-top: 2px;
+            padding-bottom: 2px;
+            padding-left: 4px;
+            padding-right: 4px;
+            border-radius: 0px;
+            font-size: 12px !important;
+            border: 1px solid #ccc;
+            width: 100%
+        }
+
+        .btn {
+            font-size: 13px;
+        }
+
+        .block {
+            display: inline;
+            padding: 4px !important;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 2;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: .25em;
+            color: inherit !important;
+            background-color: white !important;
+            border: 1px solid #ccc !important;
+            cursor: pointer;
+            margin-right: 2px !important;
+        }
+
+            .block:hover {
+                background-color: #ccc;
+                color: white;
+            }
+
+        .block-control {
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .block-100 {
+            width: 100%;
+        }
+
+        .label {
+            margin: 0px !important;
+            padding: 4px !important;
+            font-size: 12px;
+            font-weight: normal;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .label-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+
+        .label-info {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+        .label-warning {
+            color: #8a6d3b;
+            background-color: #fcf8e3;
+            border-color: #faebcc;
+        }
+
+        .label-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+
+        .label-default {
+            color: dimgray;
+            background-color: white;
+            border-color: dimgray;
+        }
+
+        .dataTables_length {
+            margin-top: 12px !important;
+        }
+
+        div.dataTables_length select {
+            font-size: 13px !important;
+            padding: 0px 6px 0px 6px !important;
+            height: 22px;
+            border-radius: 4px;
+        }
+
+        .nav-tabs > li {
+            vertical-align: bottom;
+            display: inline-block;
+            float: none;
+        }
+
+            .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+                border: none;
+                border-bottom: 3px solid #e9a39c;
+                font-weight: bold;
+                background: transparent;
+            }
+
+        .select2-container--default .select2-selection--single {
+            min-height: 30px !important;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 0px;
+        }
+
+        .select2-container .select2-selection--multiple {
+            min-height: 30px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #73879C;
+            padding-top: 1px;
+        }
+
+        .capitalize {
+            text-transform: lowercase;
+            display: inline-block;
+        }
+
+            .capitalize:first-letter {
+                text-transform: uppercase
+            }
+
+        .x_panel {
+            padding: 12px 12px;
+        }
+
+        .row {
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+
+        .nav.navbar-nav > li > a {
+            color: #73879C !important;
+        }
+
+        .x_content > div > span {
+            font-weight: bold;
+            /*color: #333;*/
+            font-size: 13px;
+            /*margin: 0px;*/
+        }
+
+        .x_content > div > div > span {
+            font-weight: bold;
+            /*color: #333;*/
+            font-size: 13px;
+            /*margin: 0px;*/
+        }
+
+        .x_content > div > div > div > span {
+            font-weight: bold;
+            /*color: #333;*/
+            font-size: 13px;
+            /*margin: 0px;*/
+        }
+
+        .checkbox-label {
+            font-weight: normal;
+            font-size: 13px;
+        }
+
+        .x_button_add {
+            color: #bbb;
+            cursor: pointer;
+        }
+
+            .x_button_add:hover {
+                color: #555;
+            }
+    </style>
+
+    <style>
+
+        .file-upload {
+            display: block;
+            text-align: center;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+        }
+
+            .file-upload .file-select {
+                display: block;
+                border: 2px solid #dce4ec;
+                color: #34495e;
+                cursor: pointer;
+                height: 40px;
+                line-height: 40px;
+                text-align: left;
+                background: #FFFFFF;
+                overflow: hidden;
+                position: relative;
+            }
+
+                .file-upload .file-select .file-select-button {
+                    background: #dce4ec;
+                    padding: 0 10px;
+                    display: inline-block;
+                    height: 40px;
+                    line-height: 40px;
+                }
+
+                .file-upload .file-select .file-select-name {
+                    line-height: 40px;
+                    display: inline-block;
+                    padding: 0 10px;
+                }
+
+                .file-upload .file-select:hover {
+                    border-color: #34495e;
+                    transition: all .2s ease-in-out;
+                    -moz-transition: all .2s ease-in-out;
+                    -webkit-transition: all .2s ease-in-out;
+                    -o-transition: all .2s ease-in-out;
+                }
+
+                    .file-upload .file-select:hover .file-select-button {
+                        background: #34495e;
+                        color: #FFFFFF;
+                        transition: all .2s ease-in-out;
+                        -moz-transition: all .2s ease-in-out;
+                        -webkit-transition: all .2s ease-in-out;
+                        -o-transition: all .2s ease-in-out;
+                    }
+
+            .file-upload.active .file-select {
+                border-color: #3fa46a;
+                transition: all .2s ease-in-out;
+                -moz-transition: all .2s ease-in-out;
+                -webkit-transition: all .2s ease-in-out;
+                -o-transition: all .2s ease-in-out;
+            }
+
+                .file-upload.active .file-select .file-select-button {
+                    background: #3fa46a;
+                    color: #FFFFFF;
+                    transition: all .2s ease-in-out;
+                    -moz-transition: all .2s ease-in-out;
+                    -webkit-transition: all .2s ease-in-out;
+                    -o-transition: all .2s ease-in-out;
+                }
+
+            .file-upload .file-select input[type=file] {
+                z-index: 100;
+                cursor: pointer;
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                top: 0;
+                left: 0;
+                opacity: 0;
+                filter: alpha(opacity=0);
+            }
+
+            .file-upload .file-select.file-select-disabled {
+                opacity: 0.65;
+            }
+
+                .file-upload .file-select.file-select-disabled:hover {
+                    cursor: default;
+                    display: block;
+                    border: 2px solid #dce4ec;
+                    color: #34495e;
+                    cursor: pointer;
+                    height: 40px;
+                    line-height: 40px;
+                    margin-top: 5px;
+                    text-align: left;
+                    background: #FFFFFF;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                    .file-upload .file-select.file-select-disabled:hover .file-select-button {
+                        background: #dce4ec;
+                        color: #666666;
+                        padding: 0 10px;
+                        display: inline-block;
+                        height: 40px;
+                        line-height: 40px;
+                    }
+
+                    .file-upload .file-select.file-select-disabled:hover .file-select-name {
+                        line-height: 40px;
+                        display: inline-block;
+                        padding: 0 10px;
+                    }
+    </style>
+
+    <script type="text/javascript">
+
+        function OpenModal(nombreModal) {
+            try {
+                var panel = "#modal" + nombreModal;
+                $(panel).modal("show");
+            }
+            catch (e) {
+                toastr.error(e.message, "");
+            }
+        };
+
+        function CloseModal(nombreModal) {
+            var panel = "#modal" + nombreModal;
+            $(panel).modal('hide');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+            return false;
+        };
+
+    </script>
+
+</head>
+
+<body class="nav-md">
+
+    <div class="page-loader-variant-1">
+        <div> 
+            <div class="page-loader-body">
+                <div id="spinningSquaresG">
+                    <div class="spinningSquaresG" id="spinningSquaresG_1"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_2"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_3"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_4"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_5"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_6"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_7"></div>
+                    <div class="spinningSquaresG" id="spinningSquaresG_8"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="~/" class="site_title">
+                            @*<i class="fa fa-paw"></i>*@ <span>TicketManagement</span>
+                        </a>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <!-- menu profile quick info -->
+                    <div class="profile clearfix">
+                        @*<div class="profile_pic">
+                <img src="~/images/img.jpg" alt="..." class="img-circle profile_img">
+            </div>*@
+                        <div class="profile_info">
+                            <span>Welcome,</span>
+                            <h2>@RenderSection("SideUserName", required: false)</h2>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+
+                    <br />
+
+                    @*<partial name="_Sidebar" />*@
+
+                    @{
+                        var role = 0;
+                        var roles = TicketManagement.Helpers.Functions.Deserialize<List<TicketManagement.BLL.sRole>>(Session["_USERROLES"].ToString());
+                        if (roles.Where(c => new List<int>() { 1, 2 }.Contains(c.roleID)).Count() > 0)
+                        {
+                            role = 2;
+                        }
+                        else if (roles.Where(c => new List<int>() { 3 }.Contains(c.roleID)).Count() > 0)
+                        {
+                            role = 3;
+                        }
+                        else
+                        {
+                            role = 4;
+                        }
+                    }
+
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>General</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a><i class="fa fa-asterisk"></i> Requests<span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="~/tRequest/Requests">Request Management</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-file-excel-o"></i> Reports <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="~/tReports/Index">Reports</a></li>
+                                    </ul>
+                                </li>
+                                @if (role == 2)
+                                {
+                                    <li>
+                                        <a><i class="fa fa-lock"></i> Security <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu">
+                                            <li><a href="~/tSecurity/Roles">Roles</a></li>
+                                            <li><a href="~/tSecurity/Users">Users</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- /menu footer buttons -->
+                    <div class="sidebar-footer hidden-small">
+                        @*<a data-toggle="tooltip" data-placement="top" title="Settings">
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                            <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Lock">
+                            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                        </a>*@
+                        <a data-toggle="tooltip" data-placement="top" title="Logout">
+                            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        @*<div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-left">
+                            <li>
+                                @RenderSection("ViewName", required: false)
+                            </li>
+                        </ul>*@
+                        <ul class="nav navbar-nav pull-left">
+                            <li>
+                                <div class="nav toggle pull-left text-center">
+                                    <a id="menu_toggle"><i class="fa fa-bars" style="font-size:27px"></i></a>
+                                </div>
+                                <a href="javascript:;" class="user-profile pull-left" data-toggle="dropdown" aria-expanded="false" style="padding:0px !important">
+                                    @RenderSection("ViewName", required: false)
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav pull-right">
+                        @*<ul class="nav navbar-nav navbar-right">*@
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    @*<img src="~/images/img.jpg" alt="">*@
+                                    @RenderSection("TopUserName", required: false)
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="~/Users/Profile"> My Profile</a></li>
+                                    @*<li>
+                                        <a href="javascript:;">
+                                            <span class="badge bg-red pull-right">50%</span>
+                                            <span>Settings</span>
+                                        </a>
+                                    </li>
+                                    <li><a href="javascript:;">Help</a></li>*@
+                                    <li><a href="~/Users/Logout"><i class="fa fa-sign-out pull-right"></i> Logout</a></li>
+                                </ul>
+                            </li>
+
+                            @*<li role="presentation" class="dropdown">
+                            <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-envelope-o"></i>
+                                <span class="badge bg-green">6</span>
+                            </a>
+                            <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
+                                <li>
+                                    <a>
+                                        <span class="image"><img src="~/images/img.jpg" alt="Profile Image" /></span>
+                                        <span>
+                                            <span>John Smith</span>
+                                            <span class="time">3 mins ago</span>
+                                        </span>
+                                        <span class="message">
+                                            Film festivals used to be do-or-die moments for movie makers. They were where...
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="image"><img src="~/images/img.jpg" alt="Profile Image" /></span>
+                                        <span>
+                                            <span>John Smith</span>
+                                            <span class="time">3 mins ago</span>
+                                        </span>
+                                        <span class="message">
+                                            Film festivals used to be do-or-die moments for movie makers. They were where...
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="image"><img src="~/images/img.jpg" alt="Profile Image" /></span>
+                                        <span>
+                                            <span>John Smith</span>
+                                            <span class="time">3 mins ago</span>
+                                        </span>
+                                        <span class="message">
+                                            Film festivals used to be do-or-die moments for movie makers. They were where...
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="image">
+                                            <img src="~/images/img.jpg" alt="Profile Image" />
+                                        </span>
+                                        <span>
+                                            <span>John Smith</span>
+                                            <span class="time">3 mins ago</span>
+                                        </span>
+                                        <span class="message">
+                                            Film festivals used to be do-or-die moments for movie makers. They were where...
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="text-center">
+                                        <a>
+                                            <strong>See All Alerts</strong>
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>*@
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+
+            @RenderBody()
+
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    TicketManagement
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <!--<script src="~/lib/jquery/dist/jquery.min.js"></script>-->
+    <!-- Bootstrap -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- FastClick -->
+    <script src="~/lib/fastclick/lib/fastclick.js"></script>
+    <!-- NProgress -->
+    <script src="~/lib/nprogress/nprogress.js"></script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

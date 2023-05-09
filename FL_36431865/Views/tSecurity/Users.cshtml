@@ -1,0 +1,636 @@
+﻿@model TicketManagement.Model.Base<TicketManagement.BLL.User>
+
+@{ ViewData["Title"] = "Users"; }
+
+@section styles{
+    <link href="~/Content/dataTables.bootstrap4.css" rel="stylesheet">
+    <link href="~/Content/custom.min.css" rel="stylesheet">
+    <link href="~/Content/toastr.min.css" rel="stylesheet">
+}
+@section scripts{
+    <script src="~/Scripts/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
+    <script src="~/Scripts/custom.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+
+    <script type="text/javascript">
+        $(function(){
+            var message = '@TempData["Message"]';
+            if (message != null && message != '') {
+                var title = '@ViewBag.Title';
+                var success = '@TempData["Success"]';
+                if (success == "1") {
+                    toastr.success(message, title);
+                }
+                else {
+                    toastr.error(message, title);
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var form = $('select[name="s"]').parent().parent();
+            $(form).css("display", "none");
+        });
+    </script>
+
+    <script>
+        $('#sortTable').DataTable({
+            //language: {
+            //    searchPlaceholder: "Search",
+            //    search: "",
+            //    paginate: {
+            //        "first": "Primera",
+            //        "last": "Ultima",
+            //        "next": "Siguiente",
+            //        "previous": "Anterior"
+            //    },
+            //    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            //    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+            //    lengthMenu: "Mostrar _MENU_ Entradas",
+            //},
+            dom: '<"top"f<"clear">>rt<"bottom"lp<"clear">>',
+            order: [[1, 'desc']],
+            lengthMenu: [
+                [5, 10, 15, -1],
+                [5, 10, 15, 'All'],
+            ],
+        });
+    </script>
+
+    <script>
+        function SearchByStatus(status) {
+            $('#selestado').val(status);
+            $('#btnSearch').click();
+        }
+    </script>
+
+    <script type="text/javascript">
+
+        // details / create new / Edit
+        function CreateNew() {
+            $('#lblatituloUsuario').text("New user creation");
+            //$('.x-textbox-edit').each(function () {
+            //    $(this).attr('readonly', false);
+            //    $(this).val('');
+            //});
+            //$('.x-radio-edit').each(function () {
+            //    $(this).attr('disabled', false);
+            //});
+            //$('.x-checkbox-edit').each(function () {
+            //    $(this).attr('disabled', false);
+            //});
+
+            var action = '1';
+            $('#hdnAction').val(action);
+
+            $('#txtauserName').attr('readonly', false);
+            $('#txtaemail').val('');
+
+            $('#txtauserName').attr('readonly', false);
+            $('#txtaemail').val('');
+
+            OpenModal('USER');
+        }
+
+        function Edit(userCode, userName) {
+            $('#lblatituloUsuario').text("User edition : " + userName);
+
+            var action = '2';
+            $('#hdnAction').val(action);
+            $('#txtauserName').attr('readonly', false);
+            $('#txtaemail').attr('readonly', true);
+            ShowUserModal(userCode, action);
+        }
+
+        function ShowDetails(userCode, userName) {
+            $('#lblatituloUsuario').text("User request : " + userName);
+            //$('.x-textbox-edit').each(function () {
+            //    $(this).attr('readonly', true);
+            //});
+
+            var action = '0';
+            $('#hdnAction').val(action);
+            $('#txtauserName').attr('readonly', true);
+            $('#txtaemail').attr('readonly', true);
+            ShowUserModal(userCode, action);
+        }
+
+        // Mostrar detalles
+        function ShowUserModal(userCode, action) {
+            var data = {};
+            data.userCode = userCode;
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetUserByCode")",
+                async: false,
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    if (response.error == 0) {
+
+                        //$('.x-textbox-edit').each(function () {
+                        //    $(this).attr('readonly', action == '2' ? false : true);
+                        //});
+                        //$('.x-radio-edit').each(function () {
+                        //    $(this).attr('disabled', action == '2' ? false : true);
+                        //});
+                        //$('.x-checkbox-edit').each(function () {
+                        //    $(this).attr('disabled', action == '2' ? false : true);
+                        //});
+
+                        var output = response.output;
+                        $('#hdnauserCode').val(userCode);
+                        $('#txtauserName').val(output.usuario.userName);
+                        $('#txtaemail').val(output.usuario.email);
+                        $('#hdnAction').val('2');
+
+                        if (action == '2') {
+                            $('#lbtnSaveUser').show();
+                        }
+                        else {
+                            $('#lbtnSaveUser').hide();
+                        }
+
+                        OpenModal('USER');
+                    }
+                    else {
+                        toastr.error(response.message, "");
+                    }
+                },
+                failure: function (response) {
+                    toastr.error(response, "");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, "");
+                }
+            });
+        }
+
+        // Save
+        function Save() {
+            var action = $('#hdnAction').val();
+            var userCode = $('#hdnauserCode').val();
+            var userName = $('#txtauserName').val();
+            var email = $('#txtaemail').val();
+
+            var data = {};
+            data.userCode = userCode;
+            data.userName = userName;
+            data.email = email;
+
+            // Create new
+            if (action == '1') {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CreateNewUser")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+
+            // Edit
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UpdateUser")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+        }
+
+        // Activate
+        function Activate(userCode, userName) {
+
+            if (confirm('Status for user "' + userName + '" will change. Continue?') == false) {
+                return false;
+            }
+
+            var data = {};
+            data.userCode = userCode;
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ActivateUser")",
+                async: false,
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    if (response.error == 0) {
+                        location.reload();
+                    }
+                    else {
+                        toastr.error(response.message, "");
+                    }
+                },
+                failure: function (response) {
+                    toastr.error(response, "");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, "");
+                }
+            });
+        }
+
+        // Remove role
+        function RemoveRole(othis) {
+            if (confirm('The role will be removed. continue?')) {
+                var block = $(othis).closest(".block");
+                var data = {};
+                data.userCode = block.find("#hdnuserCode").val();
+                data.roleID = block.find("#hdnroleID").val();
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("RemoveUserRole")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            block.remove();
+                            toastr.success(response.message, "");
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+        }
+
+        // Open roles modal
+        function ShowRolesModal(userCode, userName) {
+
+            $('#hdnuserCodeR').val(userCode);
+            $('#lbluserNameR').text(userName);
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetNotAssignedRoles")",
+                data: { userCode: userCode },
+                dataType: "json",
+                success: function (response) {
+
+                    if (response.error == 0) {
+
+                        var data = response.output;
+                        var table, theader, tr, col;
+
+                        table = $("<table id='tbPerfiles' class='table table-striped'></table>");
+                        theader = $("<thead></thead>");
+                        tr = $("<tr></tr>"); tr.append(col);
+                        col = $("<th></th>"); tr.append(col);
+                        col = $("<th class='col-md-1'>Code</th>"); tr.append(col);
+                        col = $("<th class='col-md-4'>Name</th>"); tr.append(col);
+                        col = $("<th class='col-md-7'>Description</th>"); tr.append(col);
+                        theader.append(tr);
+                        table.append(theader);
+
+                        tbody = $("<tbody></tbody>");
+                        $.each(data, function (i, item) {
+                            tr = $('<tr class="x-usuarioPerfil">').append(
+                                $('<td>').html(
+                                    "<input type='checkbox' id='chkxestado' " + (item.status == 1 ? " checked" : "") + " >" +
+                                    "<input type='hidden' id='hdnxuserCode' value='" + userCode + "' >" +
+                                    "<input type='hidden' id='hdnxroleID' value='" + item.roleID + "' >"
+                                ),
+                                $('<td>').html(
+                                    "<span  class='roleID'>" + item.roleID + "</span>"
+                                ),
+                                $('<td>').html(
+                                    "<span  class='roleName'>" + item.roleName + "</span>"
+                                ),
+                                $('<td>').html(
+                                    "<span  class='description'>" + item.description + "</span>"
+                                )
+                            );
+                            tbody.append(tr);
+                        });
+                        table.append(tbody);
+
+                        $('#spPerfiles').html(table);
+
+                        OpenModal('PERFILES');
+                    }
+                    else
+                        toastr.error(response.message, "");
+                },
+                failure: function (response) {
+                    toastr.error(response, "");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, "");
+                }
+            });
+        };
+
+        // Ajax: Save roles
+        function SaveRoles() {
+            $('.x-usuarioPerfil').each(function () {
+                var status = $(this).find('#chkxestado').is(':checked');
+                var userCode = $(this).find('#hdnxuserCode').val();
+                var roleID = $(this).find('#hdnxroleID').val();
+
+                if (status) {
+                    var data = {};
+                    data.userCode = userCode;
+                    data.roleID = roleID;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("AssignUserRole")",
+                        async: false,
+                        data: data,
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.error == 0) {
+                                //CloseModal('PERFILES');
+                                //toastr.success("Roles updated successfully", "");
+                            }
+                            else {
+                                toastr.error(response.message, "");
+                            }
+                        },
+                        failure: function (response) {
+                            toastr.error(response, "");
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            toastr.error(XMLHttpRequest.responseText, "");
+                        }
+                    });
+                }
+            });
+            location.reload();
+        }
+
+    </script>
+}
+@section SideUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section TopUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section ViewName{
+    <h4 style="margin-top:20px !important">
+        <strong>Registered Users</strong>
+    </h4>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <form action="Users" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Search Filters <small></small></h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content collapse">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(modelItem => Model.Data.usuario.userName, new { @id = "txtuserName", @class = "form-control", @type = "text", @placeholder = "User Name" })
+                                        @*<input id="txtuserName" asp-for="@Model.Data.usuario.userName" class="form-control" type="text" placeholder="Name del usuario" />*@
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        @{
+                                            var lista = new List<KeyValuePair<string, string>>();
+                                            lista.Add(new KeyValuePair<string, string>("-1", "All"));
+                                            lista.Add(new KeyValuePair<string, string>("1", "Actives"));
+                                            lista.Add(new KeyValuePair<string, string>("0", "Inactives"));
+                                        }
+                                        @Html.DropDownListFor(modelItem => Model.Data.usuario.status, new SelectList(lista, "key", "value"), "Select", new { @class = "form-control", @id = "selestado", @style = "width: 100%; " })
+                                        @*<select id="selestado" asp-for="@Model.Data.usuario.status" class="form-control">
+                                            <option value="-1">All</option>
+                                            <option value="1">Actives</option>
+                                            <option value="0">Inactives</option>
+                                        </select>*@
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <input id="btnSearch" type="submit" class="btn btn-link" value="Search" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="x_panel">
+                        <div class="x_content">
+
+                            <ul class="nav nav-tabs">
+                                <li class="@(Model.Data.usuario.status == 1 ? "active" : "")">
+                                    <a onclick="SearchByStatus('1');" style="cursor:pointer;">Active</a>
+                                </li>
+                                <li class="@(Model.Data.usuario.status == 0 ? "active" : "")">
+                                    <a onclick="SearchByStatus('0');" style="cursor:pointer;">Inactive</a>
+                                </li>
+                                <li class="@(Model.Data.usuario.status == -1 ? "active" : "")">
+                                    <a onclick="SearchByStatus('-1');" style="cursor:pointer;">All</a>
+                                </li>
+                            </ul>
+
+                            <br />
+
+                            @if (Model != null && Model.Items.Count > 0)
+                            {
+                                <table class="table table-striped table-bordered" id="sortTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th class="col-md-2">Name</th>
+                                            <th class="col-md-3">Email</th>
+                                            <th class="col-md-1">Status</th>
+                                            <th class="col-md-3">Roles</th>
+                                            <th class="col-md-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Items)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@Html.DisplayFor(modelItem => item.usuario.userCode)</strong>
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.usuario.userName)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.usuario.email)
+                                                </td>
+                                                <td>
+                                                    @if (item.usuario.status == 1)
+                                                    {
+                                                        <span class="label label-success">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="label label-danger">Inactive</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span title="Add new role" class="fa fa-plus block-control" onclick="ShowRolesModal('@item.usuario.userCode', '@item.usuario.userName');"></span>
+                                                    @foreach (var perfil in item.perfiles)
+                                                    {
+                                                        <span class="block">
+                                                            @perfil.roleName &nbsp;
+                                                            <span title="Remove perfil" class="fa fa-remove block-control" onclick="RemoveRole(this);"></span>
+                                                            <input type="hidden" id="hdnuserCode" value="@item.usuario.userCode" />
+                                                            <input type="hidden" id="hdnroleID" value="@perfil.roleID " />
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="col-md-2 text-right">
+                                                    <a class='x-action-button' onclick='ShowDetails("@item.usuario.userCode", "@item.usuario.userName");' href='javascript:;'>Show</a>
+                                                    <a class='x-action-button' onclick='Edit("@item.usuario.userCode", "@item.usuario.userName");' href='javascript:;'>| Edit</a>
+                                                    @if (item.usuario.status == 1)
+                                                    {
+                                                        <a class='x-action-button' onclick='Activate("@item.usuario.userCode", "@item.usuario.userName");' href='javascript:;'>| Deactivate</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class='x-action-button' onclick='Activate("@item.usuario.userCode", "@item.usuario.userName");' href='javascript:;'>| Activate</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="row" style="margin: 0px">
+                                    <div class="col-md-12 col-xs-12" style="border: 1px solid #ccc;">
+                                        <h5><strong>No records found</strong></h5>
+                                    </div>
+                                </div>
+                            }
+
+                            <br />
+                            <br />
+
+                            <strong><a class="btn btn-primary" onclick='CreateNew();'><span class="fa fa-plus"></span> Create new user</a></strong>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalUSER" class="modal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="lblatituloUsuario"></span></h4>
+                <input type="hidden" id="hdnauserCode" />
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="txtauserName" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="text" id="txtaemail" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                    @*<div class="col-lg-12">
+                            <div class="form-group">
+                                @Html.CheckBoxFor(model => Model.status, new { @id = "chkaIsActive", @class = "x-checkbox-edit" }) <strong> User Activo</strong>
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="lbtnSaveUser" class="btn btn-default" onclick="Save();">
+                    <span class="glyphicon glyphicon-search"></span> Save
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="hidden" id="hdnAction" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPERFILES" class="modal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff">&times;</button>
+                <h4 class="modal-title"><span>New role</span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <span id="spPerfiles"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="SaveRoles();">
+                    <span class="glyphicon glyphicon-search"></span> Save Roles
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+

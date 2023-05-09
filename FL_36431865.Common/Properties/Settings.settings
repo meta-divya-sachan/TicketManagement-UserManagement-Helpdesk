@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TicketManagement.Common.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Config" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\APPS\COM\BIFCPM\Config.xml</Value>
+    </Setting>
+    <Setting Name="LogPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\APPS\TMP\BIFCPM\Logs</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

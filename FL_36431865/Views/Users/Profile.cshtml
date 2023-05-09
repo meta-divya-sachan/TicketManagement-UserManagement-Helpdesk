@@ -1,0 +1,347 @@
+﻿@model TicketManagement.BLL.User
+
+@{ ViewData["Title"] = "Profile"; }
+
+@section styles{
+    <link href="~/Content/dataTables.bootstrap4.css" rel="stylesheet">
+    <link href="~/Content/custom.min.css" rel="stylesheet">
+    <link href="~/Content/toastr.min.css" rel="stylesheet">
+    <link href="~/lib/select2/dist/css/select2.min.css" rel="stylesheet" />
+}
+@section scripts{
+    <script src="~/Scripts/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
+    <script src="~/Scripts/custom.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+    <script src="~/lib/select2/dist/js/select2.min.js"></script>
+
+    <script>
+        $(function(){
+            var message = '@TempData["Message"]';
+            if (message != null && message != '') {
+                var title = '@ViewBag.Title';
+                var success = '@TempData["Success"]';
+                if (success == "1") {
+                    toastr.success(message, title);
+                }
+                else {
+                    toastr.error(message, title);
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var form = $('select[name="s"]').parent().parent();
+            $(form).css("display", "none");
+        });
+    </script>
+
+    <script>
+        $('#sortTable').DataTable({
+            language: {
+                searchPlaceholder: "Search",
+                search: "",
+                paginate: {
+                    "first": "Primera",
+                    "last": "Ultima",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+            },
+            dom: '<"top"f<"clear">>rt<"bottom"lp<"clear">>',
+            order: [[1, 'desc']],
+            lengthMenu: [
+                [10, 20, 30, -1],
+                [10, 20, 30, 'All'],
+            ],
+        });
+    </script>
+
+    <script>
+
+        // Editar
+        function Editar() {
+            $('#hdnAction').val('2');
+            $('#spTituloCaso').html('Editar Caso de Investigación ');
+            OpenModal('CASO');
+        }
+
+        function Update() {
+            try {
+                var userCode = $('#txtuserCode').val();
+                var userName = $('#txtuserName').val();
+
+                var mensaje = "";
+                if (userName.trim() == '') mensaje = mensaje + "Enter your user name" + "<br />";
+                if (mensaje != "") throw mensaje;
+
+                var data = {};
+                data.userCode = userCode;
+                data.userName = userName;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UpdateProfile")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+            catch (error) {
+                toastr.error(error, "");
+            }
+        }
+
+        // Change password
+        function ChangePassword(userID, userName) {
+            $('#lblpName').text("Password change ");
+            $('.x-textbox-edit').each(function () {
+                $(this).attr('readonly', false);
+                $(this).val('');
+            });
+            OpenModal('PASSWORD');
+        }
+
+        function SavePassword() {
+            try
+            {
+                if (confirm('The password will be changed. Continue?') == false) {
+                    return false;
+                }
+
+                var userCode = $('#txtuserCode').val();
+                var password = $('#txtpassword').val();
+                var confirmPassword = $('#txtconfirmPassword').val();
+
+                var mensaje = "";
+                if (password.trim() == '') mensaje = mensaje + "Enter your new password" + "<br />";
+                if (confirmPassword.trim() == '') mensaje = mensaje + "Confirm your new password" + "<br />";
+                if (password.trim() != confirmPassword.trim()) mensaje = mensaje + "Passwords are different" + "<br />";
+                if (mensaje != "") throw mensaje;
+
+                var data = {};
+                data.userCode = userCode;
+                data.password = password;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UpdateUserPassword")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+            catch (error) {
+                toastr.error(error, "");
+            }
+        }
+
+    </script>
+
+    <script>
+
+        $("#btnUpload").on('click', function () {
+            var userCode = $('#txtuserCode').val();
+            var files = $('#chooseFile').prop("files");
+            var url = "@Url.Action("UploadFile", "tUpload")";
+
+            formData = new FormData();
+            formData.append("code", userCode);
+            formData.append("subModule", 1); // User Image
+            formData.append("uploader", files[0]);
+            jQuery.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                success: function (repo) {
+                    if (repo.status == "success") {
+                        alert("File : " + repo.documentName + " uploaded");
+                        location.reload();
+                    }
+                },
+                error: function () {
+                    alert("Error uploading");
+                }
+            });
+        });
+
+        $('#chooseFile').bind('change', function () {
+            var filename = $("#chooseFile").val();
+            if (/^\s*$/.test(filename)) {
+                $(".file-upload").removeClass('active');
+                $("#noFile").text("No files selected...");
+            }
+            else {
+                $(".file-upload").addClass('active');
+                $("#noFile").text(filename.replace("C:\\fakepath\\", ""));
+            }
+        });
+
+    </script>
+}
+@section SideUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section TopUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section ViewName{
+    <h4 style="margin-top:20px !important">
+        <strong>Profile</strong>
+    </h4>
+}
+
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="">
+        <form asp-action="Caso">
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>My Profile <small></small></h2>
+                            <h3> Below your details are given!!</h3>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="row">
+                                        <div class="col-lg-2" style="display: none;">
+                                            <span>User Code</span>
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(modelItem => Model.usuario.userCode, new { @class = "form-control", @id = "txtuserCode", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <span>User Name</span>
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(modelItem => Model.usuario.userName, new { @class = "form-control", @id = "txtuserName", @type = "text" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <span>Email</span>
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(modelItem => Model.usuario.email, new { @class = "form-control", @id = "txtemail", @type = "text", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <span>Profile Image</span>
+                                            <span id="btnUpload" class="pull-right btn btn-link" style="padding: 0px !important; margin: 0px !important;">
+                                                <span class="fa fa-upload"></span> Upload
+                                            </span>
+                                            <div class="clearfix"></div>
+                                            <div class="file-upload">
+                                                <div class="file-select">
+                                                    <div class="file-select-button" id="fileName">Select file</div>
+                                                    <div class="file-select-name" id="noFile">No file selected...</div>
+                                                    <input type="file" name="chooseFile" id="chooseFile" accept="image/*">
+                                                </div>
+                                            </div>
+
+                                            <div style="width: 100%; border: solid 1px #ccc; padding: 10px">
+                                                @{
+                                                    if (Model != null && !string.IsNullOrEmpty(Model.usuario.guidImage1))
+                                                    {
+                                                        var guidImage1 = "/Uploads/" + Model.usuario.guidImage1;
+                                                        <img src="@guidImage1" alt="" height="100" width="100" />
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br />
+                            <br />
+
+                            <strong><a class="btn btn-primary" onclick='Update();'><span class="fa fa-plus"></span> Update my profile</a></strong>
+                            <strong><a class="btn btn-primary" onclick='ChangePassword();'><span class="fa fa-lock"></span> Change my password</a></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalPASSWORD" class="modal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff">&times;</button>
+                <h4 class="modal-title"><span id="lblpName"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>New password</label>
+                            <input type="password" id="txtpassword" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Confirm new password</label>
+                            <input type="password" id="txtconfirmPassword" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="lbtnSave" class="btn btn-default" onclick="SavePassword();">
+                    <span class="glyphicon glyphicon-search"></span> Save Password
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

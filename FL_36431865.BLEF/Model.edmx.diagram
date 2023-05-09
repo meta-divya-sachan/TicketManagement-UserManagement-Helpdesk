@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="b950480e8784401e8d5f3eabd8be2e9b" Name="Diagram1" >
+        <EntityTypeShape EntityType="TicketManagementModel.pParameter" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.sRole" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="TicketManagementModel.sSystemObject" Width="1.5" PointX="2.75" PointY="5.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.sUser" Width="1.5" PointX="0.75" PointY="9.25" />
+        <EntityTypeShape EntityType="TicketManagementModel.sUserAccess" Width="1.5" PointX="7.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.sUserRole" Width="1.5" PointX="3" PointY="1.125" />
+        <EntityTypeShape EntityType="TicketManagementModel.sysdiagrams" Width="1.5" PointX="7.75" PointY="4.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.tRequest" Width="1.5" PointX="7.75" PointY="7.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.tRequestComment" Width="1.5" PointX="9.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketManagementModel.tRequestHistory" Width="1.5" PointX="2.75" PointY="9.75" />
+        <AssociationConnector Association="TicketManagementModel.FK_UserRole_Role" />
+        <AssociationConnector Association="TicketManagementModel.FK_UserRole_User" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,0 +1,11 @@
+﻿@media (min-width: 1000px) {
+
+    .table-textbox-sp {
+        width: 100%;
+    }
+
+    .modal-xlg {
+        width: 1000px;
+        z-index: 9999;
+    }
+}

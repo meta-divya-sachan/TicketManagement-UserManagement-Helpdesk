@@ -1,0 +1,108 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+/*body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}*/
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+/*.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}*/
+
+/* Carousel */
+/*.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}*/
+
+/* Make .svg files in the carousel display properly in older browsers */
+/*.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}*/
+
+/* QR code generator */
+/*#qrCode {
+    margin: 15px;
+}*/
+
+/* Hide/rearrange for smaller screens */
+/*@media screen and (max-width: 767px) {*/
+    /* Hide captions */
+    /*.carousel-caption {
+        display: none;
+    }
+}
+
+dl {
+    display: flex;
+    flex-flow: row wrap;
+    border: solid #333;
+    border-width: 1px 1px 0 0;
+}
+
+dt {
+    flex-basis: 20%;
+    padding: 2px 4px;
+    background: #333;
+    text-align: right;
+    color: #fff;
+}
+
+dd {
+    flex-basis: 70%;
+    flex-grow: 1;
+    margin: 0;
+    padding: 2px 4px;
+    border-bottom: 1px solid #333;
+}*/
+
+@media (min-width: 1000px) {
+
+    .table-textbox-sp {
+        width: 100%;
+    }
+
+    .modal-xlg {
+        width: 1000px;
+        z-index: 9999;
+    }
+}
+
+@media (min-width:800px) {
+
+    .x-lg-hide {
+        display: none !important;
+        padding: 0px !important;
+        margin: 0px !important;
+    }
+
+    .x-sm-edition {
+        display: none !important;
+    }
+}
+
+@media (max-width:800px) {
+
+    td, th {
+        text-align: left !important;
+        display: block !important;
+        float: left !important;
+        width: 100% !important;
+        border-top: none !important;
+        padding: 2px !important;
+    }
+}
+
+@media (max-width:800px) {
+
+    .top_row {
+        display: none !important;
+    }
+
+    .x-lg-edition {
+        display: none !important;
+    }
+}

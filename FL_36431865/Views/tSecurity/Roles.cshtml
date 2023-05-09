@@ -1,0 +1,424 @@
+﻿@model TicketManagement.Model.Base<TicketManagement.BLL.sRole>
+
+@{ ViewData["Title"] = "Roles"; }
+
+@section styles{
+    <link href="~/Content/dataTables.bootstrap4.css" rel="stylesheet">
+    <link href="~/Content/custom.min.css" rel="stylesheet">
+    <link href="~/Content/toastr.min.css" rel="stylesheet">
+}
+@section scripts{
+    <script src="~/Scripts/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
+    <script src="~/Scripts/custom.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+
+    <script>
+        $(function(){
+            var message = '@TempData["Message"]';
+            if (message != null && message != '') {
+                var title = '@ViewBag.Title';
+                var success = '@TempData["Success"]';
+                if (success == "1") {
+                    toastr.success(message, title);
+                }
+                else {
+                    toastr.error(message, title);
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var form = $('select[name="s"]').parent().parent();
+            $(form).css("display", "none");
+        });
+    </script>
+
+    <script>
+        $('#sortTable').DataTable({
+            //language: {
+            //    searchPlaceholder: "Search",
+            //    search: "",
+            //    paginate: {
+            //        "first": "Primera",
+            //        "last": "Ultima",
+            //        "next": "Siguiente",
+            //        "previous": "Anterior"
+            //    },
+            //    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            //    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+            //    lengthMenu: "Mostrar _MENU_ Entradas",
+            //},
+            dom: '<"top"f<"clear">>rt<"bottom"lp<"clear">>',
+            order: [[1, 'desc']],
+            lengthMenu: [
+                [5, 10, 15, -1],
+                [5, 10, 15, 'All'],
+            ],
+        });
+    </script>
+
+    <script>
+        function SearchByStatus(status) {
+            $('#selestado').val(status);
+            $('#btnSearch').click();
+        }
+    </script>
+
+    <script type="text/javascript">
+
+        // Ver Detalles / Crear Nuevo / Edit
+        function CreateNew() {
+            $('#lblaRoleTitle').text("New Role");
+            $('.x-textbox-edit').each(function () {
+                $(this).attr('readonly', false);
+                $(this).val('');
+            });
+            $('.x-radio-edit').each(function () {
+                $(this).attr('disabled', false);
+            });
+            $('.x-checkbox-edit').each(function () {
+                $(this).attr('disabled', false);
+            });
+
+            var action = '1';
+            $('#hdnAction').val(action);
+            OpenModal('ROLE');
+        }
+
+        function Edit(roleID, roleName) {
+            $('#lblaRoleTitle').text("Role Edition : " + roleName);
+
+            var action = '2';
+            $('#hdnAction').val(action);
+            ShowRoleModal(roleID, action);
+        }
+
+        function ShowDetails(roleID, roleName) {
+            $('#lblaRoleTitle').text("Role Details : " + roleName);
+
+            var action = '0';
+            $('#hdnAction').val(action);
+            ShowRoleModal(roleID, action);
+        }
+
+        function ShowRoleModal(roleID, action) {
+            var data = {};
+            data.roleID = roleID;
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetRoleByCode")",
+                async: false,
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    if (response.error == 0) {
+
+                        $('.x-textbox-edit').each(function () {
+                            $(this).attr('readonly', action == '2' ? false : true);
+                        });
+                        $('.x-radio-edit').each(function () {
+                            $(this).attr('disabled', action == '2' ? false : true);
+                        });
+                        $('.x-checkbox-edit').each(function () {
+                            $(this).attr('disabled', action == '2' ? false : true);
+                        });
+
+                        var output = response.output;
+                        $('#hdnaroleID').val(output.roleID);
+                        $('#txtaroleName').val(output.roleName);
+                        $('#txtadescription').val(output.description);
+                        $('#hdnAction').val('2');
+
+                        if (action == '2') {
+                            $('#lbtnSaveRole').show();
+                        }
+                        else {
+                            $('#lbtnSaveRole').hide();
+                        }
+
+                        OpenModal('ROLE');
+                    }
+                    else {
+                        toastr.error(response.message, "");
+                    }
+                },
+                failure: function (response) {
+                    toastr.error(response, "");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, "");
+                }
+            });
+        }
+
+        function Save() {
+            var action = $('#hdnAction').val();
+            var roleID = $('#hdnaroleID').val();
+            var roleName = $('#txtaroleName').val();
+            var description = $('#txtadescription').val();
+
+            var data = {};
+            data.roleID = roleID;
+            data.roleName = roleName;
+            data.description = description;
+
+            // Crear Nuevo
+            if (action == '1') {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CreateNewRole")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+
+            // Edit
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UpdateRole")",
+                    async: false,
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error == 0) {
+                            location.reload();
+                        }
+                        else {
+                            toastr.error(response.message, "");
+                        }
+                    },
+                    failure: function (response) {
+                        toastr.error(response, "");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        toastr.error(XMLHttpRequest.responseText, "");
+                    }
+                });
+            }
+        };
+
+        // Delete
+        function Delete(roleID, roleName) {
+
+            if (confirm('Role "' + roleName + '" will be deleted. Continue?') == false) {
+                return false;
+            }
+
+            var data = {};
+            data.roleID = roleID;             
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("DeleteRole")",
+                async: false,
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    if (response.error == 0) {
+                        location.reload();
+                    }
+                    else {
+                        toastr.error(response.message, "");
+                    }
+                },
+                failure: function (response) {
+                    toastr.error(response, "");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, "");
+                }
+            });
+        }
+
+    </script>
+}
+@section SideUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section TopUserName{
+    @Session["_USERNAME"].ToString()
+}
+@section ViewName{
+    <h4 style="margin-top:20px !important">
+        <strong>Registered Roles</strong>
+    </h4>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <form action="Roles" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Search Filters <small></small></h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content collapse">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(modelItem => Model.Data.roleName, new { @id = "txtroleName", @class = "form-control", @type = "text", @placeholder = "Role Name" })
+                                        @*<input id="txtroleName" asp-for="@Model.Data.roleName" class="form-control" type="text" placeholder="Name del perfil" />*@
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        @{
+                                            var lista = new List<KeyValuePair<string, string>>();
+                                            lista.Add(new KeyValuePair<string, string>("-1", "All"));
+                                            lista.Add(new KeyValuePair<string, string>("1", "Actives"));
+                                            lista.Add(new KeyValuePair<string, string>("0", "Inactives"));
+                                        }
+                                        @Html.DropDownListFor(modelItem => Model.Data.status, new SelectList(lista, "key", "value"), "Select", new { @class = "form-control", @id = "selestado", @style = "width: 100%; " })
+                                        @*<select id="selestado" asp-for="@Model.Data.status" class="form-control">
+                                            <option value="-1">All</option>
+                                            <option value="1">Actives</option>
+                                            <option value="0">Inactives</option>
+                                        </select>*@
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <input id="btnSearch" type="submit" class="btn btn-link" value="Search" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="x_panel">
+                        <div class="x_content">
+                            <ul class="nav nav-tabs">
+                                <li class="@(Model.Data.status == 1 ? "active" : "")">
+                                    <a onclick="SearchByStatus('1');" style="cursor:pointer;">Active</a>
+                                </li>
+                                <li class="@(Model.Data.status == 0 ? "active" : "")">
+                                    <a onclick="SearchByStatus('0');" style="cursor:pointer;">Inactive</a>
+                                </li>
+                                <li class="@(Model.Data.status == -1 ? "active" : "")">
+                                    <a onclick="SearchByStatus('-1');" style="cursor:pointer;">All</a>
+                                </li>
+                            </ul>
+
+                            <br />
+
+                            @if (Model != null && Model.Items.Count > 0)
+                            {
+                                <table class="table table-striped table-bordered" id="sortTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-1">Code</th>
+                                            <th class="col-md-3">Name</th>
+                                            <th class="col-md-1">Status</th>
+                                            <th class="col-md-7 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Items)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@Html.DisplayFor(modelItem => item.roleID)</strong>
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.roleName)
+                                                </td>
+                                                <td>
+                                                    @if (item.status == 1)
+                                                    {
+                                                        <span class="label label-success">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="label label-danger">Inactive</span>
+                                                    }
+                                                </td>
+                                                <td class="text-right">
+                                                    <a class='x-action-button' onclick='ShowDetails("@item.roleID", "@item.roleName");' href='javascript:;'>Show</a>
+                                                    <a class='x-action-button' onclick='Edit("@item.roleID", "@item.roleName");' href='javascript:;'>| Edit</a>
+                                                    <a class='x-action-button' onclick='Delete("@item.roleID", "@item.roleName");' href='javascript:;'>| Delete</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="row" style="margin: 0px">
+                                    <div class="col-md-12 col-xs-12" style="border: 1px solid #ccc;">
+                                        <h5><strong>No records found</strong></h5>
+                                    </div>
+                                </div>
+                            }
+
+                            <br />
+                            <br />
+
+                            <strong><a class="btn btn-primary" onclick='CreateNew();'><span class="fa fa-plus"></span> Create new role</a></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalROLE" class="modal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="lblaRoleTitle"></span></h4>
+                <input type="hidden" id="hdnaroleID" />
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="txtaroleName" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="txtadescription" class="form-control x-textbox-edit" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="lbtnSaveRole" class="btn btn-default" onclick="Save();">
+                    <span class="glyphicon glyphicon-search"></span> Save
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="hidden" id="hdnAction" />
+            </div>
+        </div>
+    </div>
+</div>

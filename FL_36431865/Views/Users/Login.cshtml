@@ -1,0 +1,248 @@
+﻿@model TicketManagement.BLL.sUser
+
+@{ Layout = ""; }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>TicketManagement | Login</title>
+
+    <!-- Bootstrap -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="~/lib/nprogress/nprogress.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="~/lib/animate.css/animate.min.css" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="~/Content/custom.min.css" rel="stylesheet">
+    <link href="~/Content/toastr.min.css" rel="stylesheet">
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/custom.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+
+    <script>
+
+        $(function(){
+            var message = '@TempData["Message"]';
+            if (message != null && message != '') {
+                var title = '@ViewBag.Title';
+                var success = '@TempData["Success"]';
+                if (success == "1") {
+                    toastr.success(message, title);
+                }
+                else {
+                    toastr.error(message, title);
+                }
+            }
+        });
+
+        $(document).ready(function () {
+            var form = $('select[name="s"]').parent().parent();
+            $(form).css("display", "none");
+        });
+
+        $(window).load(function () {
+            $(".page-loader-variant-1").fadeOut(500);
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        function Login() {
+            var title = '@ViewBag.Title';
+            var action = $('#action').val();
+            var email = $('#txtemail').val();
+
+            var message = '';
+            if (email == '') message = message + "Enter your email" + "<br />";
+            if (message != '') {
+                toastr.error(message, title);
+                return;
+            }
+
+            switch (action) {
+                case "0":
+                    var data = {};
+                    data.email = email;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("GetCredentialsByEmail")",
+                        async: false,
+                        data: data,
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.error == 0) {
+                                var output = response.output;
+                                if (output.action == "1") {
+                                    $('#action').val("1");
+                                    $('#btnLogin').text('Log in');
+                                    $('#txtemail').attr('readonly', true);
+                                    $('#divPassword').show();
+                                    $('#divClientID').hide();
+                                }
+                                else {
+                                    var data = output.data;
+                                    $('#ddlclientID').empty();
+                                    $.each(data, function (i, item) {
+                                        $('#ddlclientID').append($('<option>', {
+                                            value: item.clientID,
+                                            text: item.clientName
+                                        }));
+                                    });
+
+                                    $('#action').val("2");
+                                    $('#btnLogin').text('Log in');
+                                    $('#txtemail').attr('readonly', true);
+                                    $('#divPassword').show();
+                                    $('#divClientID').show();
+                                }
+                            }
+                            else {
+                                toastr.error(response.message, "");
+                            }
+                        },
+                        failure: function (response) {
+                            toastr.error(response, "");
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            toastr.error(XMLHttpRequest.responseText, "");
+                        }
+                    });
+
+                    break;
+
+                case "1":
+                case "2":
+                    debugger;
+                    var password = $('#txtpassword').val();
+                    if (password == '') {
+                        toastr.error("Enter your password", title);
+                        return;
+                    }
+
+                    var clientID = $('#ddlclientID').val();
+
+                    var data = {};
+                    data.email = email;
+                    data.password = password;
+                    data.clientID = clientID;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("CheckLogin")",
+                        async: false,
+                        data: data,
+                        dataType: "json",
+                        success: function (response) {
+                            debugger;
+                            if (response.error == 0) {
+                                window.location = "@Url.Action("Requests", "tRequest")";
+                                @*window.location = "@Url.Action("Index", "Home")";*@
+                            }
+                            else {
+                                toastr.error(response.message, "");
+                            }
+                        },
+                        failure: function (response) {
+                            toastr.error(response, "");
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            toastr.error(XMLHttpRequest.responseText, "");
+                        }
+                    });
+
+                    break;
+            }
+        };
+    </script>
+
+    <style>
+        .login_content h1:after, .login_content h1:before {
+            height: 0px !important;
+        }
+    </style>
+
+</head>
+
+<body class="login">
+    <form asp-action="Login">
+
+        <div class="page-loader-variant-1">
+            <div>
+                <a class="brand brand-md brand-inverse" href="index.html">
+                    @*<img src="../Images/LOGO2.png" alt="" width="182" height="45" />*@
+                </a>
+                <div class="page-loader-body">
+                    <div id="spinningSquaresG">
+                        <div class="spinningSquaresG" id="spinningSquaresG_1"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_2"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_3"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_4"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_5"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_6"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_7"></div>
+                        <div class="spinningSquaresG" id="spinningSquaresG_8"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <a class="hiddenanchor" id="signup"></a>
+            <a class="hiddenanchor" id="signin"></a>
+
+            <div class="login_wrapper">
+                <div class="animate form login_form">
+                    <section class="login_content"> 
+
+                        <h1>TicketManagement</h1>
+                        <div class="form-group">
+                            <input type="email" asp-for="email" id="txtemail" placeholder="User Email" class="form-control" MaxLength="200" />
+                        </div>
+                        <div class="form-group" id="divPassword" style="display:none">
+                            <input type="password" asp-for="password" id="txtpassword" placeholder="Password" class="form-control" MaxLength="30" />
+                        </div>
+                        <div class="form-group" id="divClientID" style="display:none">
+                            <select id="ddlclientID" class="form-control x-login-box"></select>
+                        </div>
+                        <div class="form-group">
+                            <a id="btnLogin" class='btn btn-default submit' onclick='Login();' style='cursor:pointer;' href='javascript:;'>Continue</a>
+                            <input type="hidden" id="action" value="0" />
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <div class="separator">
+                            <p class="change_link">
+                                New in the site?
+                                <a href="/Users/Register" class="to_register">Create an account</a>
+                            </p>
+
+                            <div class="clearfix"></div>
+                            <br />
+
+                            <div>
+                                <h4><i class="fa fa-home"></i> TicketManagement</h4>
+                                <p>©@DateTime.Now.Year All right reserved</p>
+                            </div>
+                        </div> 
+                    </section>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+
+</html> 
