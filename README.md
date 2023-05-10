@@ -3,7 +3,7 @@
 Ticket management, with user role authentication and authorization.
 
 Tech Used-
-C#, ASP.NET MVC, MSSM18, EF6 , JS, Jquery, Log4net, MD5 for password security, toastr JS library, fusioncharts.
+C#, ASP.NET MVC, MSSM18, EF6 , JS, HTML, CSS, Jquery, Log4net, MD5 for password security, toastr JS library, fusioncharts.
 Approach-
 Datafirst approach
 Architechture- 
